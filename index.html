@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyberdeck: Gangs of NC Automa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cp-yellow: #FCEE0A;
+            --cp-cyan: #00F0FF;
+            --cp-red: #FF003C;
+            --bg-dark: #090909;
+            --panel-bg: #111;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            touch-action: manipulation;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--cp-yellow);
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--cp-cyan);
+            padding-bottom: 10px;
+            margin-top: 0;
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            font-size: 24px;
+        }
+
+        h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--cp-cyan);
+            margin: 5px 0 10px 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            border-left: 3px solid var(--cp-cyan);
+            padding-left: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Trackers de Street Cred a 3 bandas */
+        .tracker-board {
+            display: flex;
+            justify-content: space-between;
+            background: var(--panel-bg);
+            border: 1px solid #333;
+            padding: 15px;
+            gap: 10px;
+        }
+
+        .tracker {
+            text-align: center;
+            width: 32%;
+            padding: 5px;
+            border-radius: 4px;
+            background: #1a1a1a;
+        }
+
+        .tracker-player { border-top: 3px solid var(--cp-cyan); }
+        .tracker-johnny { border-top: 3px solid var(--cp-yellow); }
+        .tracker-rival { border-top: 3px solid var(--cp-red); }
+
+        .tracker h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            margin: 0 0 10px 0;
+            color: #ccc;
+        }
+
+        .score-display {
+            font-size: 32px;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            margin: 10px 0;
+            transition: text-shadow 0.3s ease-in-out;
+        }
+
+        .p-score { color: var(--cp-cyan); }
+        .j-score { color: var(--cp-yellow); }
+        .ai-score { color: var(--cp-red); }
+
+        /* Brillos de victoria */
+        .glow-player { text-shadow: 0 0 15px var(--cp-cyan), 0 0 30px var(--cp-cyan); }
+        .glow-johnny { text-shadow: 0 0 15px var(--cp-yellow), 0 0 30px var(--cp-yellow); }
+        .glow-ai { text-shadow: 0 0 15px var(--cp-red), 0 0 30px var(--cp-red); }
+
+        .btn-controls {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-score {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            width: 45%;
+            padding: 8px 0;
+            font-size: 18px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            user-select: none;
+        }
+        
+        .btn-score:hover { background: #555; }
+
+        /* Botones de Acción */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-action {
+            background: var(--panel-bg);
+            color: #fff;
+            border: 1px solid #444;
+            padding: 10px;
+            font-size: 14px;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: left;
+            user-select: none;
+        }
+
+        .btn-action:hover { background: #222; }
+
+        .btn-johnny { border-color: var(--cp-yellow); color: #fffee0; }
+        .btn-johnny:hover { background: rgba(252, 238, 10, 0.2); }
+
+        .btn-ai { border-color: var(--cp-red); color: #ffd1d8; }
+        .btn-ai:hover { background: rgba(255, 0, 60, 0.2); }
+        
+        .btn-player { border-color: var(--cp-cyan); color: #d1faff; }
+        .btn-player:hover { background: rgba(0, 240, 255, 0.2); }
+
+        .btn-story { border-color: #888; color: #ddd; text-align: center; }
+        .btn-story:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff;}
+        
+        .btn-full { grid-column: span 2; }
+
+        .btn-small {
+            background: #222; border: 1px solid #555; color: #fff;
+            padding: 4px 8px; font-size: 10px; cursor: pointer; font-family: 'Orbitron', sans-serif;
+        }
+        .btn-small:hover { background: var(--cp-red); }
+
+        /* Consola de Salida */
+        .console {
+            background: #050505;
+            border: 1px solid #333;
+            border-top: 3px solid #555;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            color: #0f0;
+            display: flex;
+            flex-direction: column-reverse;
+            line-height: 1.4;
+        }
+
+        .log-entry { margin-bottom: 8px; border-bottom: 1px dashed #222; padding-bottom: 8px;}
+        .log-sys { color: var(--cp-cyan); }
+        .log-joh { color: var(--cp-yellow); }
+        .log-err { color: var(--cp-red); }
+        .log-warn { color: #fff; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: var(--cp-cyan); }
+
+    </style>
+</head>
+<body>
+
+    <h1>SOULKILLER OS v6.0</h1>
+
+    <div class="container">
+        <div class="tracker-board">
+            <div class="tracker tracker-player">
+                <h2>TÚ</h2>
+                <div class="score-display p-score" id="playerScore">0</div>
+                <div class="btn-controls">
+                    <button class="btn-score" onclick="updateScore('player', -1)">-</button>
+                    <button class="btn-score" onclick="updateScore('player', 1)">+</button>
+                </div>
+            </div>
+            <div class="tracker tracker-johnny">
+                <h2>JOHNNY</h2>
+                <div class="score-display j-score" id="johnnyScore">0</div>
+                <div class="btn-controls">
+                    <button class="btn-score" onclick="updateScore('johnny', -1)">-</button>
+                    <button class="btn-score" onclick="updateScore('johnny', 1)">+</button>
+                </div>
+            </div>
+            <div class="tracker tracker-rival">
+                <h2>BANDA IA</h2>
+                <div class="score-display ai-score" id="aiScore">0</div>
+                <div class="btn-controls">
+                    <button class="btn-score" onclick="updateScore('ai', -1)">-</button>
+                    <button class="btn-score" onclick="updateScore('ai', 1)">+</button>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3>>>> REFERENCIA DEL JUGADOR <button class="btn-small" onclick="resetGame()">NUEVA PARTIDA</button></h3>
+            <div class="action-grid">
+                <button class="btn-action btn-player" onclick="showActivate()">1. Tu Turno: ACTIVATE</button>
+                <button class="btn-action btn-player" onclick="showReclaim()">2. Tu Turno: RECLAIM</button>
+                <button class="btn-action btn-player btn-full" onclick="showCombat()">Reglas: RESOLUCIÓN TIROTEOS</button>
+            </div>
+        </div>
+
+        <div>
+            <h3>>>> CONTROL DEL AUTOMA</h3>
+            <div class="action-grid">
+                <button class="btn-action btn-johnny" onclick="showJohnny()">Ejecutar: JOHNNY</button>
+                <button class="btn-action btn-ai" onclick="showRival()">Ejecutar: BANDA RIVAL</button>
+                <button class="btn-action btn-story" onclick="rollNarrativeDice()">Dado Narrativo (A / B)</button>
+                <button class="btn-action btn-story" onclick="rollStandardD6()">Tirar 1D6 Estándar</button>
+                <button class="btn-action btn-story btn-full" onclick="checkDrain()">Comprobar Pago de Historia (IA)</button>
+            </div>
+        </div>
+
+        <div>
+            <h3 style="border:none; margin-bottom: 2px;">LOG DEL SISTEMA <button class="btn-small" onclick="clearConsole()">LIMPIAR CONSOLA</button></h3>
+            <div class="console" id="consoleLog">
+                <div class="log-entry log-sys">>> SOULKILLER v6.0 Iniciado. Sincronización con el manual al 100%.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let pScore = 0;
+        let jScore = 0;
+        let aiScore = 0;
+        let pWarned = false;
+        let jWarned = false;
+        let aiWarned = false;
+
+        const pDisplay = document.getElementById('playerScore');
+        const jDisplay = document.getElementById('johnnyScore');
+        const aiDisplay = document.getElementById('aiScore');
+
+        function updateScore(target, amount) {
+            if (target === 'player') {
+                pScore += amount;
+                if(pScore < 0) pScore = 0;
+                pDisplay.innerText = pScore;
+                logMsg(`[PUNTOS] Tu Street Cred: ${pScore}`, 'sys');
+            } else if (target === 'johnny') {
+                jScore += amount;
+                if(jScore < 0) jScore = 0;
+                jDisplay.innerText = jScore;
+                logMsg(`[PUNTOS] Johnny SC: ${jScore}`, 'joh');
+            } else {
+                aiScore += amount;
+                if(aiScore < 0) aiScore = 0;
+                aiDisplay.innerText = aiScore;
+                logMsg(`[PUNTOS] Banda Rival SC: ${aiScore}`, 'err');
+            }
+            checkWin();
+        }
+
+        function checkWin() {
+            // Lógica Jugador
+            if (pScore >= 25) {
+                pDisplay.classList.add('glow-player');
+                if (!pWarned) { logMsg("¡ALERTA! Has alcanzado 25 SC.", 'sys'); pWarned = true; }
+            } else { pDisplay.classList.remove('glow-player'); pWarned = false; }
+
+            // Lógica Johnny
+            if (jScore >= 25) {
+                jDisplay.classList.add('glow-johnny');
+                if (!jWarned) { logMsg("¡CUIDADO! Johnny Silverhand ha alcanzado 25 SC.", 'joh'); jWarned = true; }
+            } else { jDisplay.classList.remove('glow-johnny'); jWarned = false; }
+
+            // Lógica Banda Rival
+            if (aiScore >= 25) {
+                aiDisplay.classList.add('glow-ai');
+                if (!aiWarned) { logMsg("¡PELIGRO! La Banda Rival ha alcanzado 25 SC.", 'err'); aiWarned = true; }
+            } else { aiDisplay.classList.remove('glow-ai'); aiWarned = false; }
+        }
+
+        function resetGame() {
+            if(confirm("¿Seguro que quieres borrar los marcadores y empezar una nueva partida?")) {
+                pScore = 0; jScore = 0; aiScore = 0;
+                pWarned = false; jWarned = false; aiWarned = false;
+                pDisplay.innerText = pScore; jDisplay.innerText = jScore; aiDisplay.innerText = aiScore;
+                pDisplay.classList.remove('glow-player'); jDisplay.classList.remove('glow-johnny'); aiDisplay.classList.remove('glow-ai');
+                clearConsole();
+                logMsg(">> MARCADORES REINICIADOS. Listos para una nueva incursión.", 'sys');
+            }
+        }
+
+        function clearConsole() { document.getElementById('consoleLog').innerHTML = ''; }
+
+        function showActivate() {
+            logMsg("<strong>[TU TURNO: ACTIVATE]</strong> (Usa 1 o 2 discos)<br>→ <strong>Solos:</strong> Mover y 1 Tiroteo.<br>→ <strong>Techies:</strong> Mover y Comprar Oportunidad o Contratar Edgerunner.<br>→ <strong>Netrunners:</strong> Mover e Incursión.<br>→ <strong>Guarida:</strong> Paga 2€ y gana SC.<br>→ <strong>Mejorar:</strong> Paga 1€ (Roba 2, toma 1, destruye 1).<br><em>[!] AL FINAL: Repón el mercado vacante.</em>", 'sys');
+        }
+
+        function showReclaim() {
+            logMsg("<strong>[TU TURNO: RECLAIM]</strong><br>1. <strong>Recuperar:</strong> Devuelve discos a tu tablero.<br>2. <strong>Recompensas:</strong> Presencia = 1 recurso. Dominancia = Todos los recursos.<br>3. <strong>Reclutar:</strong> 1 Unidad humana por Guarida tuya (Techies añaden 1 Dron gratis).", 'sys');
+        }
+
+        function showCombat() {
+            logMsg("<strong>[RESOLUCIÓN DE TIROTEOS]</strong> (Empate=Nadie muere).<br>→ <strong>Tú:</strong> Juegas 1 carta.<br>→ <strong>Johnny:</strong> Roba 3 cartas. Si gana, mata a TODOS.<br>→ <strong>IA Rival:</strong> Roba 2 cartas.<br>   * <em>Si IA gana:</em> Pierdes 1 unidad e IA gana +3 SC.<br>   * <em>Si Tú ganas:</em> IA sacrifica 1 Dron o tú eliges qué unidad humana suya muere <strong>(incluyendo Edgerunners)</strong>.", 'warn');
+        }
+
+        function showJohnny() {
+            logMsg("<strong>[TURNO: JOHNNY]</strong> (Solo tras tu Activate)<br>1. Roba 1 Distrito y muévelo allí.<br>2. Si tú estás ahí: <strong>TIROTEO</strong>.<br>3. Si IA Rival está (y tú no): IA pierde sus unidades. Johnny <strong>+4 SC</strong>. Elimina Oportunidad.<br>4. Si Johnny solo: Johnny <strong>+3 SC</strong>. Elimina Oportunidad.", 'joh');
+        }
+
+        function showRival() {
+            logMsg("<strong>[TURNO: BANDA RIVAL]</strong> (Roba 3 distritos y resuelve 1 a 1):<br>1. <strong>Recluta</strong> 1 unidad (al POI si vacío).<br>2. <strong>Efecto:</strong><br> - Sin ti: Banda Rival <strong>+2 SC</strong> y baraja Edgerunners.<br> - Tú + Techie: Pierdes 1 recurso o Banda Rival <strong>+3 SC</strong>. Elimina Oportunidad.<br> - Tú + Netrunner: Retrocedes 1 en Red y Banda Rival <strong>+2 SC</strong>.<br> - Tú + Solo: <strong>TIROTEO</strong>.", 'err');
+        }
+
+        function rollNarrativeDice() {
+            const roll = Math.floor(Math.random() * 6) + 1;
+            let result = (roll <= 3) ? "OPCIÓN A" : "OPCIÓN B";
+            logMsg(`[DADO NARRATIVO] Prioridad 3. Tirada: [ ${roll} ]. La IA elige: <strong>${result}</strong>`, 'warn');
+        }
+
+        function rollStandardD6() {
+            const roll = Math.floor(Math.random() * 6) + 1;
+            logMsg(`[DADO ESTÁNDAR] Tirada de 1D6: <strong>${roll}</strong>`, 'warn');
+        }
+
+        function checkDrain() {
+            logMsg("<strong>[PAGO DE HISTORIA IA]</strong><br>¿Tiene la Banda Rival Dominancia en 2 distritos O 3 unidades activas en la historia?<br>→ <strong>SÍ:</strong> La IA supera la prueba.<br>→ <strong>NO (Drenaje):</strong> La IA sufre penalización y TÚ debes descartar 1€ o 1 Contrabando.", 'warn');
+        }
+
+        function logMsg(msg, type) {
+            const consoleDiv = document.getElementById('consoleLog');
+            const newLog = document.createElement('div');
+            newLog.className = `log-entry log-${type}`;
+            newLog.innerHTML = `> ${msg}`;
+            consoleDiv.prepend(newLog);
+        }
+    </script>
+</body>
+</html>
